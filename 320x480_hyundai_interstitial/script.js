@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Configuration
     const GAME_DURATION = 3000; // 3 seconds
-    const REPEL_DISTANCE = 150; // Distance to start running away
-    const MAX_SPEED = 15; // Max pixels per frame
+    const REPEL_DISTANCE = 120; // Distance to start running away
+    const MAX_SPEED = 12; // Max pixels per frame
     const CONTAINER_WIDTH = 320;
     const CONTAINER_HEIGHT = 480;
-    const CAR_WIDTH = 200; // Matches CSS
-    const CAR_HEIGHT = 100; // Approx based on aspect ratio
+    const CAR_WIDTH = 140; // Matches CSS
+    const CAR_HEIGHT = 70; // Approx based on aspect ratio
 
     // Elements
     const sceneGame = document.getElementById('scene-game');
@@ -90,25 +90,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Boundary Checks (Bounce)
         const margin = 20;
+        let bounced = false;
+
         // Left
         if (carPos.x < CAR_WIDTH / 2 + margin) {
             carPos.x = CAR_WIDTH / 2 + margin;
-            carVel.x *= -1;
+            carVel.x = Math.abs(carVel.x) * 0.8; // Bounce with energy loss
+            bounced = true;
         }
         // Right
         if (carPos.x > CONTAINER_WIDTH - CAR_WIDTH / 2 - margin) {
             carPos.x = CONTAINER_WIDTH - CAR_WIDTH / 2 - margin;
-            carVel.x *= -1;
+            carVel.x = -Math.abs(carVel.x) * 0.8;
+            bounced = true;
         }
         // Top (keep below logo)
         if (carPos.y < CAR_HEIGHT / 2 + 60) {
             carPos.y = CAR_HEIGHT / 2 + 60;
-            carVel.y *= -1;
+            carVel.y = Math.abs(carVel.y) * 0.8;
+            bounced = true;
         }
         // Bottom
         if (carPos.y > CONTAINER_HEIGHT - CAR_HEIGHT / 2 - margin) {
             carPos.y = CONTAINER_HEIGHT - CAR_HEIGHT / 2 - margin;
-            carVel.y *= -1;
+            carVel.y = -Math.abs(carVel.y) * 0.8;
+            bounced = true;
+        }
+
+        // If caught in a corner or near wall and being chased, add a little extra push to escape
+        if (bounced && dist < REPEL_DISTANCE) {
+            // Find direction to center
+            const toCenterX = (CONTAINER_WIDTH / 2) - carPos.x;
+            const toCenterY = (CONTAINER_HEIGHT / 2) - carPos.y;
+            const mag = Math.sqrt(toCenterX*toCenterX + toCenterY*toCenterY);
+
+            // Push towards center
+            carVel.x += (toCenterX / mag) * 5;
+            carVel.y += (toCenterY / mag) * 5;
         }
 
         // Apply to element
