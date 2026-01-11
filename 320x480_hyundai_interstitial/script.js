@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let startTime = null;
     let carPos = { x: CONTAINER_WIDTH / 2, y: CONTAINER_HEIGHT / 2 };
     let carVel = { x: 0, y: 0 };
-    let mousePos = { x: CONTAINER_WIDTH / 2, y: CONTAINER_HEIGHT / 2 };
+    // Initialize off-screen so car doesn't run immediately
+    let mousePos = { x: -9999, y: -9999 };
 
     // Initialization
     function init() {
@@ -64,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let dist = Math.sqrt(dx * dx + dy * dy);
 
         // Repel force
-        if (dist < REPEL_DISTANCE) {
+        // Check for dist > 0.1 to avoid division by zero if mouse is exactly on center
+        if (dist < REPEL_DISTANCE && dist > 0.1) {
             // Normalized direction away from mouse
             let dirX = dx / dist;
             let dirY = dy / dist;
