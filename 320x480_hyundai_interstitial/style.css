@@ -1,0 +1,247 @@
+:root {
+    --hyundai-blue: #002c5f;
+    --hyundai-blue-light: #004085;
+    --text-color: #333;
+    --white: #ffffff;
+    --grey-bg: #f5f5f5;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Hyundai Sans', 'Arial', sans-serif; /* Fallback to Arial */
+}
+
+body {
+    width: 320px;
+    height: 480px;
+    background-color: var(--white);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #ccc; /* Border for visibility in dev */
+}
+
+.ad-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Logo */
+.logo-container {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 20px;
+    position: absolute;
+    top: 0;
+    z-index: 10;
+}
+
+.logo {
+    height: 20px;
+    opacity: 0.9;
+}
+
+/* Scenes */
+.scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    background: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.scene.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Typography */
+.headline {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--hyundai-blue);
+    line-height: 1.2;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.subheadline {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.scene-title {
+    font-size: 20px;
+    color: var(--hyundai-blue);
+    margin-bottom: 20px;
+    margin-top: 40px;
+    text-transform: uppercase;
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 30px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: var(--hyundai-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--hyundai-blue-light);
+}
+
+.cta-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 44, 95, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0, 44, 95, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 44, 95, 0); }
+}
+
+/* Model Selection */
+.model-carousel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.model-option {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.model-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: var(--hyundai-blue);
+}
+
+.model-image-wrapper {
+    width: 100%;
+    height: 100px;
+    overflow: hidden;
+    position: relative;
+}
+
+.model-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.model-name {
+    padding: 8px;
+    background: #f9f9f9;
+    font-weight: bold;
+    color: var(--hyundai-blue);
+}
+
+.instruction {
+    font-size: 12px;
+    color: #999;
+    margin-top: 15px;
+}
+
+/* Configurator */
+.car-display {
+    width: 100%;
+    height: 180px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.car-display img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.3s ease;
+}
+
+/* Color Overlay Trick - Simple Filter for now */
+.color-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.color-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.color-btn.selected {
+    transform: scale(1.2);
+    border-color: var(--hyundai-blue);
+}
+
+.control-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+/* End Scene */
+.final-car-preview {
+    width: 90%;
+    height: 150px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.final-car-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.replay {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #999;
+    cursor: pointer;
+    text-decoration: underline;
+}

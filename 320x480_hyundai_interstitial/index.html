@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hyundai'nizi Oluşturun</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="ad-container">
+        <!-- Logo -->
+        <div class="logo-container">
+            <img src="images/hyundai_logo.svg" alt="Hyundai Logo" class="logo">
+        </div>
+
+        <!-- Scene 1: Intro -->
+        <div id="scene-intro" class="scene active">
+            <h1 class="headline">HYUNDAI'NİZİ<br>OLUŞTURUN</h1>
+            <p class="subheadline">Hayalinizdeki aracı tasarlamaya hazır mısınız?</p>
+            <button class="btn btn-primary" id="btn-start">BAŞLA</button>
+        </div>
+
+        <!-- Scene 2: Model Select -->
+        <div id="scene-model" class="scene">
+            <h2 class="scene-title">MODEL SEÇ</h2>
+            <div class="model-carousel">
+                <div class="model-option" data-model="i20">
+                    <div class="model-image-wrapper">
+                        <img src="images/hyundai_i20.jpg" alt="Hyundai i20">
+                    </div>
+                    <div class="model-name">i20</div>
+                </div>
+                <div class="model-option" data-model="tucson">
+                    <div class="model-image-wrapper">
+                        <img src="images/hyundai_tucson.jpg" alt="Hyundai TUCSON">
+                    </div>
+                    <div class="model-name">TUCSON</div>
+                </div>
+            </div>
+            <p class="instruction">Devam etmek için bir model seçin</p>
+        </div>
+
+        <!-- Scene 3: Configurator (Simulated) -->
+        <div id="scene-config" class="scene">
+            <h2 class="scene-title" id="selected-model-name">i20</h2>
+            <div class="car-display">
+                <img id="config-car-image" src="images/hyundai_i20.jpg" alt="Selected Car">
+                <div class="color-overlay"></div>
+            </div>
+
+            <div class="controls">
+                <p class="control-label">RENK SEÇİN</p>
+                <div class="color-options">
+                    <div class="color-btn selected" data-color="white" style="background-color: #f0f0f0;"></div>
+                    <div class="color-btn" data-color="red" style="background-color: #a30000;"></div>
+                    <div class="color-btn" data-color="blue" style="background-color: #002c5f;"></div>
+                    <div class="color-btn" data-color="grey" style="background-color: #555555;"></div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-finish">BU BENİM HYUNDAI'M</button>
+        </div>
+
+        <!-- Scene 4: End Card -->
+        <div id="scene-end" class="scene">
+            <h1 class="headline">HARİKA SEÇİM!</h1>
+            <div class="final-car-preview">
+                <img id="final-car-image" src="" alt="Your Hyundai">
+            </div>
+            <a href="https://www.hyundai.com/tr/tr/arac-satis/hyundainizi-olusturun/modeller" target="_blank" class="btn btn-primary cta-pulse">DETAYLI İNCELE</a>
+            <div class="replay" id="btn-replay">Baştan Başla ↻</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
