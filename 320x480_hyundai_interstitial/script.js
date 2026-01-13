@@ -1,114 +1,165 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // State
-    let selectedModel = 'i20';
-    let selectedColor = 'white';
+    // Configuration
+    const GAME_DURATION = 3000; // 3 seconds
+    const REPEL_DISTANCE = 120; // Distance to start running away
+    const MAX_SPEED = 12; // Max pixels per frame
+    const CONTAINER_WIDTH = 320;
+    const CONTAINER_HEIGHT = 480;
+    const CAR_WIDTH = 140; // Matches CSS
+    const CAR_HEIGHT = 70; // Approx based on aspect ratio
 
     // Elements
-    const sceneIntro = document.getElementById('scene-intro');
-    const sceneModel = document.getElementById('scene-model');
-    const sceneConfig = document.getElementById('scene-config');
+    const sceneGame = document.getElementById('scene-game');
+    const sceneMsg1 = document.getElementById('scene-msg1');
     const sceneEnd = document.getElementById('scene-end');
+    const carContainer = document.getElementById('car-container');
+    const hintText = document.getElementById('hint-text');
 
-    const btnStart = document.getElementById('btn-start');
-    const btnFinish = document.getElementById('btn-finish');
-    const btnReplay = document.getElementById('btn-replay');
+    // State
+    let gameActive = false;
+    let startTime = null;
+    let carPos = { x: CONTAINER_WIDTH / 2, y: CONTAINER_HEIGHT / 2 };
+    let carVel = { x: 0, y: 0 };
+    // Initialize off-screen so car doesn't run immediately
+    let mousePos = { x: -9999, y: -9999 };
 
-    const modelOptions = document.querySelectorAll('.model-option');
-    const colorBtns = document.querySelectorAll('.color-btn');
+    // Initialization
+    function init() {
+        gameActive = true;
+        startTime = Date.now();
+        requestAnimationFrame(gameLoop);
 
-    const configCarImage = document.getElementById('config-car-image');
-    const selectedModelName = document.getElementById('selected-model-name');
-    const finalCarImage = document.getElementById('final-car-image');
+        // Setup input listeners
+        document.addEventListener('mousemove', handleInput);
+        document.addEventListener('touchmove', handleInput, { passive: false });
+        document.addEventListener('touchstart', handleInput, { passive: false });
 
-    // Model Data (Images map)
-    const models = {
-        'i20': 'images/hyundai_i20.jpg',
-        'tucson': 'images/hyundai_tucson.jpg'
-    };
+        // Timer to end game
+        setTimeout(finishGame, GAME_DURATION);
+    }
 
-    // Navigation Functions
+    function handleInput(e) {
+        e.preventDefault();
+        let clientX, clientY;
+        if (e.touches) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        // Adjust for container position (if embedded or centered)
+        const rect = document.body.getBoundingClientRect();
+        mousePos.x = clientX - rect.left;
+        mousePos.y = clientY - rect.top;
+    }
+
+    function gameLoop() {
+        if (!gameActive) return;
+
+        // Physics Logic
+        // Vector from mouse to car
+        let dx = carPos.x - mousePos.x;
+        let dy = carPos.y - mousePos.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Repel force
+        // Check for dist > 0.1 to avoid division by zero if mouse is exactly on center
+        if (dist < REPEL_DISTANCE && dist > 0.1) {
+            // Normalized direction away from mouse
+            let dirX = dx / dist;
+            let dirY = dy / dist;
+
+            // Speed increases as distance decreases
+            let speed = (REPEL_DISTANCE - dist) / REPEL_DISTANCE * MAX_SPEED;
+
+            // Add some noise/jitter to make it unpredictable
+            dirX += (Math.random() - 0.5) * 0.5;
+            dirY += (Math.random() - 0.5) * 0.5;
+
+            carVel.x += dirX * 2; // Acceleration
+            carVel.y += dirY * 2;
+        }
+
+        // Friction
+        carVel.x *= 0.9;
+        carVel.y *= 0.9;
+
+        // Update Position
+        carPos.x += carVel.x;
+        carPos.y += carVel.y;
+
+        // Boundary Checks (Bounce)
+        const margin = 20;
+        let bounced = false;
+
+        // Left
+        if (carPos.x < CAR_WIDTH / 2 + margin) {
+            carPos.x = CAR_WIDTH / 2 + margin;
+            carVel.x = Math.abs(carVel.x) * 0.8; // Bounce with energy loss
+            bounced = true;
+        }
+        // Right
+        if (carPos.x > CONTAINER_WIDTH - CAR_WIDTH / 2 - margin) {
+            carPos.x = CONTAINER_WIDTH - CAR_WIDTH / 2 - margin;
+            carVel.x = -Math.abs(carVel.x) * 0.8;
+            bounced = true;
+        }
+        // Top (keep below logo)
+        if (carPos.y < CAR_HEIGHT / 2 + 60) {
+            carPos.y = CAR_HEIGHT / 2 + 60;
+            carVel.y = Math.abs(carVel.y) * 0.8;
+            bounced = true;
+        }
+        // Bottom
+        if (carPos.y > CONTAINER_HEIGHT - CAR_HEIGHT / 2 - margin) {
+            carPos.y = CONTAINER_HEIGHT - CAR_HEIGHT / 2 - margin;
+            carVel.y = -Math.abs(carVel.y) * 0.8;
+            bounced = true;
+        }
+
+        // If caught in a corner or near wall and being chased, add a little extra push to escape
+        if (bounced && dist < REPEL_DISTANCE) {
+            // Find direction to center
+            const toCenterX = (CONTAINER_WIDTH / 2) - carPos.x;
+            const toCenterY = (CONTAINER_HEIGHT / 2) - carPos.y;
+            const mag = Math.sqrt(toCenterX*toCenterX + toCenterY*toCenterY);
+
+            // Push towards center
+            carVel.x += (toCenterX / mag) * 5;
+            carVel.y += (toCenterY / mag) * 5;
+        }
+
+        // Apply to element
+        // We use translate(-50%, -50%) in CSS, so top/left should be center coordinates
+        // But to make it easier with JS, we can just set top/left relative to container
+        // Actually CSS has `top: 50%; left: 50%; transform: translate(-50%, -50%)`
+        // So setting top/left to px values works perfectly if we update style.
+
+        carContainer.style.left = `${carPos.x}px`;
+        carContainer.style.top = `${carPos.y}px`;
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function finishGame() {
+        gameActive = false;
+
+        // Transition to Scene 2
+        switchScene(sceneGame, sceneMsg1);
+
+        // Schedule Scene 3
+        setTimeout(() => {
+            switchScene(sceneMsg1, sceneEnd);
+        }, 3000); // Show message 1 for 3 seconds
+    }
+
     function switchScene(from, to) {
         from.classList.remove('active');
         to.classList.add('active');
     }
 
-    // Event Listeners
-
-    // 1. Start -> Model Select
-    btnStart.addEventListener('click', () => {
-        switchScene(sceneIntro, sceneModel);
-    });
-
-    // 2. Model Select -> Configurator
-    modelOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            selectedModel = option.dataset.model;
-
-            // Update Configurator UI
-            selectedModelName.textContent = selectedModel === 'i20' ? 'i20' : 'TUCSON';
-            configCarImage.src = models[selectedModel];
-
-            // Reset Color to White
-            resetColorSelection();
-
-            switchScene(sceneModel, sceneConfig);
-        });
-    });
-
-    // Color Logic
-    function resetColorSelection() {
-        selectedColor = 'white';
-        colorBtns.forEach(btn => btn.classList.remove('selected'));
-        document.querySelector('[data-color="white"]').classList.add('selected');
-        applyColor('white');
-    }
-
-    colorBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // UI Update
-            colorBtns.forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-
-            // Apply Color
-            selectedColor = btn.dataset.color;
-            applyColor(selectedColor);
-        });
-    });
-
-    function applyColor(color) {
-        // Since we are using JPEGs with backgrounds, we can't just tint the image perfectly.
-        // We will use CSS filters to simulate a mood/tint change.
-        // This is a creative compromise for standard web ads without 3D canvas or perfect PNGs.
-
-        configCarImage.style.filter = 'none'; // Reset
-
-        if (color === 'red') {
-            // Subtle warm tint
-            configCarImage.style.filter = 'sepia(0.3) hue-rotate(-50deg) saturate(1.5)';
-        } else if (color === 'blue') {
-            // Cool tint
-            configCarImage.style.filter = 'sepia(0.3) hue-rotate(180deg) saturate(1.2)';
-        } else if (color === 'grey') {
-            // Desaturate
-            configCarImage.style.filter = 'grayscale(0.8) contrast(1.1)';
-        } else {
-            // White (Original, mostly)
-            configCarImage.style.filter = 'none';
-        }
-    }
-
-    // 3. Configurator -> End Card
-    btnFinish.addEventListener('click', () => {
-        // Prepare End Card
-        finalCarImage.src = models[selectedModel];
-        // Apply the same filter to the final image
-        finalCarImage.style.filter = configCarImage.style.filter;
-
-        switchScene(sceneConfig, sceneEnd);
-    });
-
-    // Replay
-    btnReplay.addEventListener('click', () => {
-        switchScene(sceneEnd, sceneIntro);
-    });
+    // Start
+    init();
 });
